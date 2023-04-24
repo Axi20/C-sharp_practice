@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.IO;
@@ -11,106 +11,125 @@ namespace Lotto
     {
         static void Main(string[] args)
         {
-            // Read data from txt 
-            List<DataStorage> dataStorage = new List<DataStorage>();
-            List<Numbers> numbers = new List<Numbers>();
-            string[] lines = File.ReadAllLines("sorsolas.txt");
-            foreach (var item in lines)
+            // Adatok beolvasása txt-ből
+            List<Sorsolas> nyeroszamok = new List<Sorsolas>();
+            List<Szamok> szamok = new List<Szamok>();
+            string[] sor = File.ReadAllLines("sorsolas.txt");
+
+            foreach (var item in sor)
             {
-                string[] values = item.Split(';');
-                DataStorage numbersObject = new DataStorage(values[0], values[1], values[2], values[3], values[4], values[5]);
-                dataStorage.Add(numbersObject);
+                string[] ertek = item.Split(';');
+                Sorsolas szamObjektum = new Sorsolas(ertek[0], ertek[1], ertek[2], ertek[3], ertek[4], ertek[5]);
+                nyeroszamok.Add(szamObjektum);
             }
 
-            // How many numbers are in the list
-            int pc = 0;
+            // Melyik számból mennyi szerepel a listában
+
+            /* Először létrehozunk egy változót a darabszám elmentéséhez.
+            For ciklussal végig megyünk a számokon 1-90-ig.
+            A nyeroszamok listán is végig megyünk minden körben, foreach-el
+            Ha i egyenlő a nyerőszám listában található számmal, akkor növeljük a db változó értékét*/
+            int db = 0;
             for (int i = 1; i < 91; i++)
             {
-                foreach (var item in dataStorage)
+                foreach (var item in nyeroszamok)
                 {
-                    pc += (i == item.firstNumber) ? 1 : 0;
-                    pc += (i == item.secondNumber) ? 1 : 0;
-                    pc += (i == item.thirdNumber) ? 1 : 0;
-                    pc += (i == item.fourthNumber) ? 1 : 0;
-                    pc += (i == item.fifthNumber) ? 1 : 0;    
+                    //Ternáris operátor - if feltételeket helyettesít - így rövidebbb a kód
+
+                    /* Ha az i értéke megegyezik az adott számmal,
+                    akkor 1-et adunk hozzá a db változó értékéhez,
+                    ha az i értéke eltér, akkor nem ad hozzá semmit. 
+                    Ha a 0-át átírnánk 2-re, akkor hamis feltétel esetén 2 lenne hozzáadva a db-hez. 
+                    ? után igaz ág, : után hamis ág. */
+                  
+                    db += (i == item.firstNumber) ? 1 : 0;
+                    db += (i == item.secondNumber) ? 1 : 0;
+                    db += (i == item.thirdNumber) ? 1 : 0;
+                    db += (i == item.fourthNumber) ? 1 : 0;
+                    db += (i == item.fifthNumber) ? 1 : 0;    
                 }
-                Numbers numbersObject = new Numbers(i, pc);
-                numbers.Add(numbersObject);
-                pc = 0;
+                Szamok numbersObject = new Szamok(i, db);
+                //Ezért hoztuk létre a 16.sorban a szamok listát.
+                //Elmentjük melyik számból hány darab van.
+                szamok.Add(numbersObject);
+                //Fontos lenullázni a db változó értékét, hogy mindig a nulláról kezdje a számolást.
+                db = 0;
             }
 
-            // Task 2
-            Console.Write("Give a number between 1-90: ");
-            string userInput = Console.ReadLine();
-            int week = 0;
-            if(int.TryParse(userInput, out week))
+            //2. A bekért számnak megfelelő hét nyerőszámai
+            Console.Write("Adj meg egy számot 1-90: ");
+            string felhasznaloSzama = Console.ReadLine();
+            int het = 0;
+            //Át kell alakítani a bekért string típusú számot int-re.
+            if(int.TryParse(felhasznaloSzama, out het))
             {
-                if(week > 0 && week < 53)
+                if(het > 0 && het < 53)
                 { 
-                    foreach (var item in dataStorage)
+                    foreach (var item in nyeroszamok)
                     {
-                        if(item.week == week)
+                        if(item.week == het)
                         {
-                            Console.WriteLine($"Task 2: {item.week}, {item.firstNumber}, {item.secondNumber}, {item.thirdNumber}, {item.fourthNumber}, {item.fifthNumber}");
+                            Console.WriteLine($"2. feladat: {item.week}, {item.firstNumber}, {item.secondNumber}, {item.thirdNumber}, {item.fourthNumber}, {item.fifthNumber}");
                         }
                     }
                 }
                 else
                 {
-                    Console.WriteLine("The number is not in the expected range!");
+                    Console.WriteLine("A szám nincs a megadott tartományban!");
                 }
             }
             else
             {
-                Console.WriteLine("Invalid input type!");
+                Console.WriteLine("Nem megfelelő beviteli érték!");
             }
 
-            // Task 3
-            int minPc = int.MaxValue;
-            int minNumber = 0;
-            foreach (var item in numbers)
+            //3. Az évben legkevesebbszer kihúzott szám - minimum keresés
+            int minDb = int.MaxValue;
+            int minSzam = 0;
+            foreach (var item in szamok)
             {
-                if (minPc > item.pieces)
+                if (minDb > item.darab)
                 {
-                    minPc = item.pieces;
-                    minNumber = item.number;
+                    minDb = item.darab;
+                    minSzam = item.szam;
                 }
             }
-            Console.WriteLine($"Task 3: {minNumber} {minPc}");
+            Console.WriteLine($"3. feladat: {minSzam} {minDb}");
 
-            // Task 4
-            int evenSum = 0;
-            foreach (var item in numbers)
+            //4. Hányszor húztak páros számot - megszámlálás
+            int parosDb = 0;
+            foreach (var item in szamok)
             {
-                if ( item.number % 2 == 0)
+                if ( item.szam % 2 == 0)
                 {
-                    evenSum += item.pieces;
+                    parosDb += item.darab;
                 }
             }
-            Console.WriteLine($"Task 4: {evenSum}");
+            Console.WriteLine($"4. feladat: {parosDb}");
 
-            // Task 5-6
-            int number5 = 0;
-            int number46 = 0;
-            foreach (var item in numbers)
+            //5-6. Hányszor húzták ki az 5 és 46 számot
+            int szam5 = 0;
+            int szam46 = 0;
+            foreach (var item in szamok)
             {
-                if(item.number == 5)
+                if(item.szam == 5)
                 {
-                    number5 = item.pieces;
+                    szam5 = item.darab;
                 }
-                if( item.number == 46)
+                if( item.szam == 46)
                 {
-                    number46 = item.pieces;
+                    szam46 = item.darab;
                 }
             }
-            Console.WriteLine($"Task 5-6 \n 5: {number5} 46: {number46}");
+            Console.WriteLine($"5-6. feladat \n5: {szam5} 46: {szam46}");
 
-            // Task 7.
-            foreach (var item in numbers)
+            //7. Számok kiíratása, hányszor húzták ki
+            foreach (var item in szamok)
             {
-                Console.WriteLine(item.number + ";" + item.pieces);
+                Console.WriteLine(item.szam + ";" + item.darab);
             }
 
+            Console.ReadKey();
         }
     }
 }
