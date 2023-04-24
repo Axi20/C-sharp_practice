@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Lotto
 {
-    internal class DataStorage
+    internal class Sorsolas
     {
         public int week;
         public int firstNumber;
@@ -15,7 +15,7 @@ namespace Lotto
         public int fourthNumber;
         public int fifthNumber;
 
-        public DataStorage(string week, string firstNumber, string secondNumber, string thirdNumber, string fourthNumber, string fifthNumber)
+        public Sorsolas(string week, string firstNumber, string secondNumber, string thirdNumber, string fourthNumber, string fifthNumber)
         {
             this.week = int.Parse(week);
             this.firstNumber = int.Parse(firstNumber);
